@@ -20,6 +20,7 @@ export default function MeetingDetailPage() {
   }, [id])
 
   async function handleDelete() {
+    if (!window.confirm('Delete this meeting? This cannot be undone.')) return
     await deleteMeeting(id)
     router.push('/')
   }

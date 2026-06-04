@@ -2,8 +2,13 @@ import type { Meeting } from './types'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
 
-export async function fetchMeetings(): Promise<Meeting[]> {
-  const res = await fetch(`${API_URL}/api/meetings`, { cache: 'no-store' })
+export async function fetchMeetings(q?: string, tag?: string): Promise<Meeting[]> {
+  const params = new URLSearchParams()
+  if (q) params.set('q', q)
+  if (tag) params.set('tag', tag)
+  const qs = params.toString()
+  const url = qs ? `${API_URL}/api/meetings?${qs}` : `${API_URL}/api/meetings`
+  const res = await fetch(url, { cache: 'no-store' })
   if (!res.ok) throw new Error('Failed to fetch meetings')
   return res.json()
 }
@@ -18,6 +23,7 @@ export async function createMeeting(data: {
   title: string
   body: string
   meetingDate: string
+  tags?: string[]
 }): Promise<Meeting> {
   const res = await fetch(`${API_URL}/api/meetings`, {
     method: 'POST',
@@ -30,7 +36,7 @@ export async function createMeeting(data: {
 
 export async function updateMeeting(
   id: string,
-  data: { title: string; body: string; meetingDate: string }
+  data: { title: string; body: string; meetingDate: string; tags?: string[] }
 ): Promise<Meeting> {
   const res = await fetch(`${API_URL}/api/meetings/${id}`, {
     method: 'PUT',
@@ -49,5 +55,9 @@ export async function deleteMeeting(id: string): Promise<void> {
 }
 
 export function formatDate(isoString: string): string {
-  return new Date(isoString).toISOString().slice(0, 10)
+  const d = new Date(isoString)
+  const y = d.getFullYear()
+  const m = String(d.getMonth() + 1).padStart(2, '0')
+  const day = String(d.getDate()).padStart(2, '0')
+  return `${y}-${m}-${day}`
 }
