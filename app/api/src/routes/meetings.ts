@@ -3,8 +3,18 @@ import { prisma } from '../lib/db'
 
 const router = Router()
 
-router.get('/', async (_req, res) => {
+router.get('/', async (req, res) => {
+  const q = req.query.q as string | undefined
+  const where = q
+    ? {
+        OR: [
+          { title: { contains: q, mode: 'insensitive' as const } },
+          { body: { contains: q, mode: 'insensitive' as const } },
+        ],
+      }
+    : {}
   const meetings = await prisma.meeting.findMany({
+    where,
     orderBy: { meetingDate: 'desc' },
   })
   res.json(meetings)
