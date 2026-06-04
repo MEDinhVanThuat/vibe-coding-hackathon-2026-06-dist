@@ -47,9 +47,18 @@ export default function MeetingDetailPage() {
           </button>
         </div>
       </div>
-      <div className="text-sm text-gray-500 mb-6">
+      <div className="text-sm text-gray-500 mb-4">
         {formatDate(meeting.meetingDate)}
       </div>
+      {meeting.tags.length > 0 && (
+        <div className="flex flex-wrap gap-1.5 mb-6">
+          {meeting.tags.map((tag) => (
+            <span key={tag} className="text-xs bg-blue-100 text-blue-700 rounded px-1.5 py-0.5">
+              {tag}
+            </span>
+          ))}
+        </div>
+      )}
       <div className="whitespace-pre-wrap">{meeting.body}</div>
     </div>
   )
