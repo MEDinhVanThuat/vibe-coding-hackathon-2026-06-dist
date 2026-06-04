@@ -5,14 +5,17 @@ const router = Router()
 
 router.get('/', async (req, res) => {
   const q = req.query.q as string | undefined
-  const where = q
-    ? {
-        OR: [
-          { title: { contains: q, mode: 'insensitive' as const } },
-          { body: { contains: q, mode: 'insensitive' as const } },
-        ],
-      }
-    : {}
+  const tag = req.query.tag as string | undefined
+  const where: Record<string, unknown> = {}
+  if (q) {
+    where.OR = [
+      { title: { contains: q, mode: 'insensitive' as const } },
+      { body: { contains: q, mode: 'insensitive' as const } },
+    ]
+  }
+  if (tag) {
+    where.tags = { has: tag }
+  }
   const meetings = await prisma.meeting.findMany({
     where,
     orderBy: { meetingDate: 'desc' },
@@ -31,26 +34,27 @@ router.get('/:id', async (req, res) => {
 })
 
 router.post('/', async (req, res) => {
-  // TODO: validate input
-  const { title, body, meetingDate } = req.body
+  const { title, body, meetingDate, tags } = req.body
   const meeting = await prisma.meeting.create({
     data: {
       title,
       body,
       meetingDate: new Date(meetingDate),
+      tags: tags ?? [],
     },
   })
   res.status(201).json(meeting)
 })
 
 router.put('/:id', async (req, res) => {
-  const { title, body, meetingDate } = req.body
+  const { title, body, meetingDate, tags } = req.body
   const meeting = await prisma.meeting.update({
     where: { id: req.params.id },
     data: {
       title,
       body,
       meetingDate: meetingDate ? new Date(meetingDate) : undefined,
+      ...(tags !== undefined && { tags }),
     },
   })
   res.json(meeting)

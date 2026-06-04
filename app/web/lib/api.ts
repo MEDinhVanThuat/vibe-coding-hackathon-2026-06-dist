@@ -2,10 +2,12 @@ import type { Meeting } from './types'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
 
-export async function fetchMeetings(q?: string): Promise<Meeting[]> {
-  const url = q
-    ? `${API_URL}/api/meetings?q=${encodeURIComponent(q)}`
-    : `${API_URL}/api/meetings`
+export async function fetchMeetings(q?: string, tag?: string): Promise<Meeting[]> {
+  const params = new URLSearchParams()
+  if (q) params.set('q', q)
+  if (tag) params.set('tag', tag)
+  const qs = params.toString()
+  const url = qs ? `${API_URL}/api/meetings?${qs}` : `${API_URL}/api/meetings`
   const res = await fetch(url, { cache: 'no-store' })
   if (!res.ok) throw new Error('Failed to fetch meetings')
   return res.json()
@@ -21,6 +23,7 @@ export async function createMeeting(data: {
   title: string
   body: string
   meetingDate: string
+  tags?: string[]
 }): Promise<Meeting> {
   const res = await fetch(`${API_URL}/api/meetings`, {
     method: 'POST',
@@ -33,7 +36,7 @@ export async function createMeeting(data: {
 
 export async function updateMeeting(
   id: string,
-  data: { title: string; body: string; meetingDate: string }
+  data: { title: string; body: string; meetingDate: string; tags?: string[] }
 ): Promise<Meeting> {
   const res = await fetch(`${API_URL}/api/meetings/${id}`, {
     method: 'PUT',
