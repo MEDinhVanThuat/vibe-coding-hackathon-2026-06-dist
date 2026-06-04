@@ -8,9 +8,14 @@ export default function NewMeetingPage() {
   const router = useRouter()
   const [title, setTitle] = useState('')
   const [body, setBody] = useState('')
-  const [meetingDate, setMeetingDate] = useState(
-    new Date().toISOString().slice(0, 10)
-  )
+  const [meetingDate, setMeetingDate] = useState(() => {
+    const d = new Date()
+    const y = d.getFullYear()
+    const m = String(d.getMonth() + 1).padStart(2, '0')
+    const day = String(d.getDate()).padStart(2, '0')
+    return `${y}-${m}-${day}`
+  })
+  const [tagsInput, setTagsInput] = useState('')
   const [submitting, setSubmitting] = useState(false)
 
   async function handleSubmit(e: React.FormEvent) {
@@ -21,6 +26,7 @@ export default function NewMeetingPage() {
         title,
         body,
         meetingDate: new Date(meetingDate).toISOString(),
+        tags: tagsInput.split(',').map((t) => t.trim()).filter(Boolean),
       })
       router.push('/')
     } catch (err) {
@@ -51,6 +57,16 @@ export default function NewMeetingPage() {
           value={meetingDate}
           onChange={(e) => setMeetingDate(e.target.value)}
           className="border rounded px-3 py-2"
+        />
+      </div>
+      <div>
+        <label className="block text-sm font-medium mb-1">Tags <span className="text-gray-400 font-normal">(comma-separated)</span></label>
+        <input
+          type="text"
+          value={tagsInput}
+          onChange={(e) => setTagsInput(e.target.value)}
+          placeholder="e.g. planning, q2, engineering"
+          className="w-full border rounded px-3 py-2"
         />
       </div>
       <div>
