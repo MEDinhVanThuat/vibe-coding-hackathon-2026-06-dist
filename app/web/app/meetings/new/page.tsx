@@ -8,9 +8,13 @@ export default function NewMeetingPage() {
   const router = useRouter()
   const [title, setTitle] = useState('')
   const [body, setBody] = useState('')
-  const [meetingDate, setMeetingDate] = useState(
-    new Date().toISOString().slice(0, 10)
-  )
+  const [meetingDate, setMeetingDate] = useState(() => {
+    const d = new Date()
+    const y = d.getFullYear()
+    const m = String(d.getMonth() + 1).padStart(2, '0')
+    const day = String(d.getDate()).padStart(2, '0')
+    return `${y}-${m}-${day}`
+  })
   const [submitting, setSubmitting] = useState(false)
 
   async function handleSubmit(e: React.FormEvent) {
