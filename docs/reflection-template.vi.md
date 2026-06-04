@@ -13,83 +13,67 @@ Không cần trình bày đầy đủ. **Hãy cụ thể về những gì bạn 
 
 ## 1. Thứ tự task và thời gian
 
-Liệt kê các task bạn đã thực sự làm, theo thứ tự. Bao gồm cả "không làm" và "bị gián đoạn".
-
-| Thứ tự | Task # | Thời gian xấp xỉ | Trạng thái (xong / một phần / không làm) |
+| Thứ tự | Task | Thời gian xấp xỉ | Trạng thái |
 |---|---|---|---|
-| 1 | | | |
-| 2 | | | |
-| 3 | | | |
-| 4 | | | |
-| 5 | | | |
-| 6 | | | |
+| 1 | task-1 Date off by one | ~9 phút (09:24 → 09:33) | xong |
+| 2 | task-4 Full-text search | ~5 phút (09:33 → 09:38) | xong |
+| 3 | task-3 Tags | ~7 phút (09:38 → 09:45) | xong |
+| 4 | task-2 Delete confirm | ~5 phút (09:45 → 09:50) | xong |
+| 5 | task-6 Title overflow | (trong cùng phiên) | xong |
+| 6 | task-5 Markdown export | — | không làm |
 
 ## 2. Ủy thác cho AI so với tự quyết định
 
-**Nơi bạn ủy thác** (2–3 ví dụ cụ thể):
+**Nơi tôi ủy thác:**
 
-- Ví dụ: "Tôi đã để Claude Code viết toàn bộ API tìm kiếm toàn văn cho #4 từ đầu — tôi không nhớ cú pháp Prisma `where: { OR: [...] }`."
--
--
--
+- Để Claude Code viết toàn bộ API search cho task-4 — tôi chỉ cần chỉ định "dùng Prisma `contains` thay vì `tsvector`", Claude tự viết query, update `api.ts`, và thêm search input vào `page.tsx`.
+- Để Claude Code xử lý boilerplate cho task-2 (dialog confirm) và task-6 (CSS truncate) hoàn toàn — đây là những thay đổi 1–2 dòng, không cần suy nghĩ.
+- Dùng Claude Cowork tự động chạy browser test sau mỗi task thay vì tự mở browser kiểm tra thủ công.
 
-**Nơi bạn tự quyết định** (2–3 ví dụ cụ thể):
+**Nơi tôi tự quyết định:**
 
-- Ví dụ: "Tôi quyết định ngay từ đầu không động vào #5 Markdown export — user story nói rõ đây là mong muốn 'sẽ rất tốt nếu có' từ một người dùng duy nhất, nên tôi thấy không đáng để dành thời gian."
--
--
--
+- Schema design cho task-3: chọn `String[]` thay vì bảng `Tag` riêng. Claude ban đầu đề xuất quan hệ nhiều-nhiều — tôi override vì với 100–500 rows, `String[]` đủ dùng và nhanh hơn nhiều trong hackathon.
+- Query strategy cho task-4: Claude đề xuất full-text index PostgreSQL (`tsvector`) — đúng về dài hạn nhưng quá phức tạp. Tôi redirect sang `ILIKE` / `contains` ngay lập tức.
+- Thứ tự ưu tiên task: tôi tự phân tích business impact từ user stories (churn risk Acme/BizCo cho task-4, 8 support tickets cho task-1) trước khi bắt đầu — không để AI quyết định thứ tự này.
 
 ## 3. Điểm bị mắc
 
-Những chỗ bạn bị tắc và cách bạn xử lý:
-
-- Vấn đề là gì?
-- Bạn xử lý ra sao (hỏi AI / đọc tài liệu / thử nghiệm / bỏ cuộc)?
-- AI có giúp ích, hay làm tình hình rối hơn?
+- **task-3 (Tags)**: Claude Code implement xong phần tạo và filter tags, nhưng bỏ sót không render tags trên detail page. Tôi phát hiện ra sau khi dùng Claude Cowork browser review — không phải qua curl test. Fix nhanh nhưng đây là lỗi do thiếu acceptance criteria rõ ràng khi giao việc cho AI.
+- **Thứ tự ưu tiên lúc đầu**: tôi mất vài phút đọc lại tất cả user stories để phân tích business impact trước khi bắt đầu code — thời gian này đáng, nhưng có thể rút ngắn nếu đã có framework phân tích sẵn.
 
 ## 4. Bạn sẽ thay đổi gì nếu làm lại
 
-Nếu bạn chạy cùng 1,5 giờ đó một lần nữa:
-
-- Việc đầu tiên bạn sẽ làm là gì?
-- Bạn đã dành quá nhiều thời gian ở đâu / quyết định quá chậm ở đâu?
+- Viết acceptance criteria cụ thể hơn khi giao task cho Claude Code — đặc biệt là "hiển thị ở đâu, trên page nào" thay vì chỉ nói "implement tags".
+- Setup Claude Cowork browser test sớm hơn ngay từ task đầu tiên, không chờ đến khi có nhiều task xong.
+- Dành ít thời gian hơn cho việc viết skills và context files trong lúc thi — tuy có giá trị nhưng chiếm thời gian implement thực tế.
 
 ## 5. Phản hồi về công cụ
 
-Với mỗi công cụ bạn đã dùng, ghi lại điểm tốt và điểm chưa tốt.
+### Claude Code (CLI)
 
-### Công cụ A (ví dụ: Claude Code)
+- **Điểm tốt**: Implement nhanh, hiểu context từ `CLAUDE.md` tốt, không cần giải thích lại codebase mỗi lần. Custom skills (`hackathon-task.md`) giúp AI biết chính xác file nào cần sửa và code snippet nào phù hợp.
+- **Điểm chưa tốt**: Đôi khi đề xuất over-engineering (tsvector, quan hệ nhiều-nhiều) — cần người dùng có đủ context kỹ thuật để redirect. Không tự biết test UI, chỉ test được qua curl.
+- **Nếu không có**: mất thêm khoảng 40–50 phút cho phần implement thuần túy.
 
-- Điểm tốt:
-- Điểm chưa tốt:
-- "Nếu không có công cụ này, tôi sẽ mất thêm N phút": khoảng bao nhiêu?
+### Claude Cowork (browser automation + product review)
 
-### Công cụ B (ví dụ: GitHub Copilot)
+- **Điểm tốt**: Test UI thực tế trên browser — phát hiện được bug tags ẩn trên detail page mà curl test bỏ sót. Vai trò "product reviewer" giúp phát hiện thêm 7 issues với business value rõ ràng, tạo ra backlog có cơ sở.
+- **Điểm chưa tốt**: Không thể tương tác với `window.confirm` dialog qua CDP (bị timeout) — cần workaround khi test delete confirmation.
+- **Nếu không có**: bỏ sót bug task-7, không có improvement wishlist có structured business value.
 
-- Điểm tốt:
-- Điểm chưa tốt:
+## 6. Tự đánh giá tier
 
-### Công cụ khác (nếu có)
+- [x] **T2 — Iterative (Lặp lại)**: Tôi đã chủ động chạy vòng lặp spec → triển khai → kiểm chứng.
 
--
+Lý do:
 
-## 6. Tự đánh giá tier của bạn (tùy chọn)
+> Tôi chạy vòng lặp implement → curl test → browser verify sau mỗi task một cách có chủ đích. Tuy nhiên phần lớn quyết định kỹ thuật vẫn dựa vào gợi ý của AI, và việc kết hợp nhiều tool (Claude Code + Cowork) chưa thực sự có chiến lược rõ ràng từ đầu — nhiều phần diễn ra tự nhiên hơn là được điều phối chủ động.
 
-Nhìn lại công việc hôm nay qua lăng kính **hệ thống cấp bậc vibe coding**, bạn nghĩ mình thuộc cấp bậc nào? Chọn một và thêm một dòng lý do. **Trung thực với bản thân quan trọng hơn việc chọn cấp bậc cao** — AI chấm điểm sẽ quan sát khoảng cách giữa tier được đánh giá và tier tự đánh giá như một tín hiệu siêu nhận thức (metacognition).
+## 7. Tự do
 
-- [ ] **T0 — Instinctive (Theo bản năng)**: Tôi chủ yếu dựa vào trực giác với những gì AI đưa ra.
-- [ ] **T1 — Reactive (Phản ứng)**: Tôi làm việc dựa trên thông báo lỗi và "không chạy được, thử lại."
-- [ ] **T2 — Iterative (Lặp lại)**: Tôi đã chủ động chạy vòng lặp spec → triển khai → kiểm chứng.
-- [ ] **T3 — Orchestrative (Điều phối)**: Tôi đã kết hợp nhiều AI / công cụ / ngữ cảnh và tự quyết định ưu tiên.
-
-Lý do một dòng:
-
-> 
-
-## 7. Tự do (tùy chọn)
-
-Bất kỳ điều gì dành cho ban tổ chức — độ khó có hợp lý không, lượng task có vừa không, các trục đánh giá có ý nghĩa không, v.v.
+- Bộ 6 task có độ khó phân bổ hợp lý: task-1 và task-6 là warm-up, task-4 và task-3 là meaty. Tỷ lệ này tốt cho 1.5h.
+- Việc giữ `tasks/specs/` đến mốc 0:50 tạo ra áp lực thú vị — buộc phải đọc user story kỹ thay vì chỉ đọc spec.
+- Trục đánh giá "ủy thác vs tự quyết định" rất có giá trị — đây là điểm phân biệt rõ nhất giữa người dùng AI có hiệu quả và không có hiệu quả.
 
 ---
 

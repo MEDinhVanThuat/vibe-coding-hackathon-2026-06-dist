@@ -20,6 +20,29 @@ description: >
 - **Claude Cowork (browser)**: truy cập browser để smoke test UI sau mỗi task
 - **Claude Cowork (review)**: duyệt toàn bộ ứng dụng, phát hiện bug, đề xuất cải thiện với business value
 
+## Các task đã hoàn thành
+
+### Hackathon tasks (#1–#6)
+| # | Task | Status |
+|---|---|---|
+| #1 | Date off by one | ✅ commit `73ba2d3` |
+| #2 | Delete confirmation | ✅ commit `8620272` |
+| #3 | Tags (schema + API + UI) | ✅ commit `8e31a32` |
+| #4 | Full-text search | ✅ commit `ba87c96` |
+| #5 | Markdown export | ⏭ bỏ qua |
+| #6 | Title overflow | ✅ (trong codebase) |
+
+### Post-hackathon tasks (#7–#11)
+| # | Task | Status |
+|---|---|---|
+| #7 | Tags hiển thị trên detail page | ✅ commit `8e536f3` |
+| #8 | Date mặc định là hôm nay | ✅ (trong codebase) |
+| #9 | Body giữ line break | ✅ (trong codebase) |
+| #10 | Empty state khi no results | ✅ commit `3441d40` |
+| #11 | Back navigation trên detail/edit | ✅ commit `3441d40` |
+| #12 | Pagination | ⏭ chưa làm |
+| #13 | Attendees field | ⏭ chưa làm |
+
 ## Before running this skill
 
 Make sure:
@@ -41,14 +64,7 @@ git branch --show-current
 git push origin submit/dinh-van-thuat
 ```
 
-### 3. Collect what was done
-
-Look at the git diff from the branch start and list:
-- Which task numbers were implemented (check CLAUDE.md "Known bugs & tasks")
-- What files changed per task
-- Execution order
-
-### 4. Open the PR (from fork → upstream)
+### 3. Open the PR (from fork → upstream)
 
 ```bash
 gh pr create \
@@ -59,12 +75,20 @@ gh pr create \
   --body "$(cat <<'EOF'
 ## Các task tôi đã làm
 
+### Hackathon tasks
 1. #1 Date off by one — xong
 2. #4 Full-text search — xong
 3. #3 Tags — xong (schema + API + UI)
 4. #2 Delete confirm — xong
 5. #6 Title overflow — xong
 6. #5 Markdown export — bỏ qua
+
+### Post-hackathon improvements (phát hiện qua browser review)
+7. #7 Tags hiển thị trên detail page — xong
+8. #8 Date mặc định là hôm nay — xong
+9. #9 Body giữ line break — xong
+10. #10 Empty state khi search/filter rỗng — xong
+11. #11 Back navigation trên detail và edit page — xong
 
 ## Tại sao tôi chọn thứ tự này
 
@@ -74,15 +98,16 @@ gh pr create \
 - #3 sau #4: scaling risk rõ ràng nhưng không cấp bách bằng churn.
 - #2, #6: UI-only, nhanh, làm sau khi phần phức tạp xong.
 - Bỏ #5: yêu cầu từ 1 người, không có validation từ khách hàng, không đủ business case.
+- Post-hackathon #7–#11: phát hiện qua browser review với Claude Cowork sau khi hoàn thành hackathon tasks.
+  Ưu tiên #7 trước vì Tags feature bị broken ngay sau khi ship.
 
 ## Cách tôi dùng AI
 
 - **Claude Code (CLI)**: implement từng task, test bằng curl sau mỗi bước
 - **Claude Cowork (browser automation)**: smoke test UI trực tiếp trên browser sau mỗi task —
-  verify list view, search, tag filter, delete confirm, date display
-- **Claude Cowork (product review)**: duyệt toàn bộ app sau khi xong, phát hiện thêm bugs
-  (tags ẩn trên detail page, body không wrap, thiếu empty state...) và đánh giá business value
-  từng cải tiến để ưu tiên backlog
+  verify list view, search, tag filter, delete confirm, date display, back navigation, empty state
+- **Claude Cowork (product review)**: duyệt toàn bộ app sau khi xong hackathon tasks, phát hiện
+  thêm 7 bugs/improvements và đánh giá business value để ưu tiên backlog
 
 - Tự quyết định: schema design cho #3 (String[] vs bảng Tag riêng),
   query strategy cho #4 (contains vs PostgreSQL tsvector)
@@ -92,12 +117,14 @@ gh pr create \
 ## Kiểm thử
 
 - Claude Code: test curl sau mỗi task
-- Claude Cowork: browser test — list, create, search, tag filter, delete confirm, date display
+- Claude Cowork: browser test toàn bộ flow sau mỗi task
 - Vấn đề đã biết: search chưa có debounce — mỗi keystroke gọi API
 
-## Backlog phát hiện thêm
+## Backlog còn lại
 
-Xem tasks/improvement-wishlist.md trong repo để biết danh sách đầy đủ.
+Xem `tasks/improvement-wishlist.md` trong repo:
+- #12 Pagination (khi >200 meetings)
+- #13 Attendees field
 EOF
 )"
 ```
@@ -106,8 +133,6 @@ EOF
 
 Mở PR thủ công tại:
 `https://github.com/marketenterprise/vibe-coding-hackathon-2026-06-dist/compare/main...MEDinhVanThuat:submit/dinh-van-thuat`
-
-Copy body template từ `docs/submission.vi.md` và điền dựa trên git log.
 
 ## Deadline reminder
 
