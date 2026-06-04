@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
+import Link from 'next/link'
 import { fetchMeeting, updateMeeting } from '@/lib/api'
 
 export default function EditMeetingPage() {
@@ -45,6 +46,8 @@ export default function EditMeetingPage() {
   if (!loaded) return <div>Loading...</div>
 
   return (
+    <div className="space-y-4">
+    <Link href={`/meetings/${id}`} className="text-sm text-gray-500 hover:text-gray-700">← Back</Link>
     <form
       onSubmit={handleSubmit}
       className="bg-white rounded shadow p-6 space-y-4"
@@ -95,5 +98,6 @@ export default function EditMeetingPage() {
         {submitting ? 'Updating...' : 'Update'}
       </button>
     </form>
+    </div>
   )
 }

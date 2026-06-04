@@ -29,7 +29,9 @@ export default function MeetingDetailPage() {
   if (!meeting) return <div>Loading...</div>
 
   return (
-    <div className="bg-white rounded shadow p-6">
+    <div className="space-y-4">
+      <Link href="/" className="text-sm text-gray-500 hover:text-gray-700">← Back</Link>
+      <div className="bg-white rounded shadow p-6">
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-semibold">{meeting.title}</h1>
         <div className="flex gap-2">
@@ -60,6 +62,7 @@ export default function MeetingDetailPage() {
         </div>
       )}
       <div className="whitespace-pre-wrap">{meeting.body}</div>
+    </div>
     </div>
   )
 }
