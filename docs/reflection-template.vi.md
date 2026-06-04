@@ -21,6 +21,13 @@ Không cần trình bày đầy đủ. **Hãy cụ thể về những gì bạn 
 | 4 | task-2 Delete confirm | ~5 phút (09:45 → 09:50) | xong |
 | 5 | task-6 Title overflow | (trong cùng phiên) | xong |
 | 6 | task-5 Markdown export | — | không làm |
+| 7 | task-7 Tags trên detail page | ~10 phút (10:17 → 10:27) | xong |
+| 8 | task-8 Date mặc định hôm nay | (trong cùng phiên) | xong |
+| 9 | task-9 Body giữ line break | (trong cùng phiên) | xong |
+| 10 | task-10 Empty state no results | ~10 phút (10:27 → 10:37) | xong |
+| 11 | task-11 Back navigation | (trong cùng phiên với task-10) | xong |
+| 12 | task-12 Pagination | — | không làm |
+| 13 | task-13 Attendees field | — | không làm |
 
 ## 2. Ủy thác cho AI so với tự quyết định
 
