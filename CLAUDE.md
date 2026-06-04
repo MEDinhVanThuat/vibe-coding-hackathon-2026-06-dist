@@ -112,3 +112,53 @@ docker compose exec db psql -U app meetings -c 'SELECT title, "meetingDate" FROM
 - `/verify-app`    — smoke test the running app
 - `/db-push`       — run Prisma migration after schema changes
 - `/submit-pr`     — prepare and open the submission PR
+
+---
+
+## Post-hackathon improvement tasks (phát hiện qua browser review)
+
+### #7 — Tags không hiển thị trên detail page [BUG]
+- `app/web/app/meetings/[id]/page.tsx` render title, date, body nhưng bỏ sót `tags`.
+- **Fix**: thêm render tags array dạng badge, tương tự cách list view đang làm ở `app/web/app/page.tsx`.
+
+### #8 — Date mặc định trong form không phải hôm nay [UX]
+- Form "New Meeting" (`app/web/app/meetings/new/page.tsx`) hiển thị date mặc định sai.
+- **Fix**: set default value bằng `new Date().toISOString().slice(0, 10)`.
+
+### #9 — Body/Notes không giữ line break [UX]
+- Detail page hiển thị body dạng plain text, mất xuống dòng giữa các đoạn.
+- **Fix**: thêm class `whitespace-pre-wrap` vào element hiển thị `body` trong `app/web/app/meetings/[id]/page.tsx`.
+
+### #10 — Không có empty state khi search/filter trả về rỗng [UX]
+- `app/web/app/page.tsx`: khi list rỗng sau search hoặc tag filter, không có message phản hồi.
+- **Fix**: thêm "No meetings found." khi `meetings.length === 0` và có query/tag đang active.
+
+### #11 — Thiếu nút Back trên detail và edit page [UX]
+- User phải dùng browser back button — không có navigation rõ ràng trong app.
+- **Fix**: thêm `<Link href="/">← Back</Link>` vào `app/web/app/meetings/[id]/page.tsx` và `edit/page.tsx`.
+
+### #12 — Không có pagination [FEATURE]
+- API trả toàn bộ meetings trong một request. Sẽ chậm khi data lớn.
+- **Fix**: thêm `?page=&limit=` ở `app/api/src/routes/meetings.ts`, render theo trang ở frontend.
+
+### #13 — Attendees / Participants field [FEATURE]
+- Schema chưa có field người tham dự. Giảm giá trị với team lớn hơn.
+- **Fix**: thêm `attendees String[]` vào Prisma schema, UI input tương tự Tags.
+
+## Priority analysis — post-hackathon tasks
+
+| # | Task | Impact | Effort | Why this rank |
+|---|---|---|---|---|
+| **#7** | Tags ẩn trên detail page | 🔴 High | ~5 min | Feature Tags bị **broken** với mọi user đã dùng — gây mất tin tưởng ngay sau khi ship |
+| **#8** | Date mặc định sai | 🟠 Medium | ~2 min | Friction trên **core user flow** — mỗi lần tạo meeting phải sửa ngày thủ công |
+| **#9** | Body không wrap đúng | 🟠 Medium | ~2 min | Readability của **core content** — notes nhiều đoạn bị dính nhau, khó đọc lại |
+| **#10** | Empty state khi no results | 🟠 Medium | ~10 min | Giảm confusion — user không phân biệt được "không có data" vs "app bị lỗi" |
+| **#11** | Thiếu Back navigation | 🟡 Low | ~10 min | UX polish — ảnh hưởng user không quen dùng browser back button |
+| **#12** | Pagination | 🟡 Low | ~30 min | Chỉ cần thiết khi >200 meetings — không urgent hiện tại |
+| **#13** | Attendees field | 🟡 Low | ~45 min | Feature mới, chưa có customer request cụ thể, không urgent |
+
+**Execution order (nếu có thêm thời gian)**:
+- **#7** trước: bug rõ ràng, fix 5 phút, loại ngay điểm mất tin tưởng vào Tags vừa ship
+- **#8 + #9** tiếp: mỗi cái 2 phút, cải thiện core flow ngay lập tức
+- **#10** sau: empty state quan trọng cho UX nhưng không breaking
+- **#11, #12, #13**: polish và feature mới, để sau cùng
